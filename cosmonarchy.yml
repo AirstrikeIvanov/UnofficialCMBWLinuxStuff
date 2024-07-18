@@ -1,0 +1,85 @@
+description:
+game_slug: cosmonarchy
+gogslug: ''
+humblestoreid: ''
+installer_slug: cosmonarchy-updater
+name: 'Cosmonarchy'
+notes: "Installation and updates require that you have Git installed. This is an UNOFFICIAL installer, while the CMBW developers work on making the official launcher work in Wine."
+runner: wine
+require-binaries: git, curl
+script:
+  files:
+  - starcraft: https://fraudsclub.com/files/starcraft.zip
+  - updater: https://github.com/AirstrikeIvanov/UnofficialCMBWLinuxStuff/raw/main/update.sh
+  - fontfix: https://github.com/AirstrikeIvanov/UnofficialCMBWLinuxStuff/raw/main/arialuni.ttf
+  - crownlink: https://github.com/impromptu1583/CrownLink/releases/latest/download/CrownLink.snp
+  game:
+    arch: win64
+    exe: drive_c/Prerelease/Cosmonarchy BW.exe
+    prefix: $GAMEDIR
+    launch_configs:
+    - exe: $GAMEDIR/drive_c/Release/Cosmonarchy BW.exe
+      name: Release/Tournament Build
+  installer:
+  - task:
+      name: create_prefix
+      arch: win64
+      prefix: $GAMEDIR
+  - extract:
+      dst: $GAMEDIR/drive_c/Starcraft
+      file: $starcraft
+  - move:
+      dst: $GAMEDIR/drive_c/Starcraft
+      src: $crownlink
+  - move:
+      dst: $GAMEDIR
+      src: $updater
+  - move:
+      dst: $GAMEDIR/drive_c/windows/Fonts
+      src: $fontfix
+  - task:
+      name: winetricks
+      app: lucida arial vcrun2022
+  - task:
+      name: set_regedit
+      path: HKEY_LOCAL_MACHINE\Software\WOW6432Node\Blizzard Entertainment\Starcraft
+      key: InstallPath
+      value: 'C:\\Starcraft'
+  - task:
+      name: set_regedit
+      path: HKEY_LOCAL_MACHINE\Software\WOW6432Node\Blizzard Entertainment\Starcraft
+      key: Program
+      value: 'C:\\Starcraft\\StarCraft.exe'
+  - task:
+      name: set_regedit
+      path: HKEY_LOCAL_MACHINE\Software\WOW6432Node\Blizzard Entertainment\Starcraft
+      key: StarEdit
+      value: 'C:\\Starcraft'
+  - execute:
+      command: cd "$GAMEDIR/drive_c"; git clone https://gitlab.com/the-no-frauds-club/cosmonarchy-bw-release.git Release; git clone https://gitlab.com/the-no-frauds-club/cosmonarchy-bw-prerelease.git Prerelease;cd "$GAMEDIR/drive_c/Starcraft/Maps"; git clone https://gitlab.com/the-no-frauds-club/cmbw-root.git CMBW-Root; chmod +x $GAMEDIR/update.sh;
+  install_complete_text: "Installation complete!\n
+                   \n
+                   This installation contains both pre-release and release builds of Cosmonarchy.\n
+                   Under most circumstances, you will want to run the pre-release build.\n
+                   Tournaments will use the release build.\n
+                   \n
+                   This installation will automatically update itself every time you attempt to launch.\n
+                   \n
+                   Don't forget to visit us at:\n
+                   https://www.fraudsclub.com/cosmonarchy-bw/\n
+                   https://discord.gg/s5SKBmY\n
+                   \n
+                   Have fun!"
+  wine:
+    battleye: false
+    eac: false
+    fsr: false
+    overrides:
+      ddraw: n,b
+  system:
+    prelaunch_command: $GAMEDIR/update.sh
+    prelaunch_wait: true
+slug: cosmonarchy
+steamid: null
+version: Both Versions
+year: 2023
